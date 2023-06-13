@@ -1,14 +1,14 @@
 import logging
 import platform
+import tmrl.config.config_constants as cfg
+import numpy as np
+
 
 if platform.system() == "Windows":
 
-    import numpy as np
     import win32gui
     import win32ui
     import win32con
-    import tmrl.config.config_constants as cfg
-
 
     class WindowInterface:
         def __init__(self, window_name="Trackmania"):
@@ -80,6 +80,7 @@ if platform.system() == "Windows":
 elif platform.system() == "Linux":
     import subprocess
     from PIL import Image
+    import io
 
 
     class NoSuchWindowException(Exception):
@@ -91,24 +92,36 @@ elif platform.system() == "Linux":
             self.window_name = window_name
             self.window_id = get_window_id(window_name)
 
+            self.h = 960
+            self.w = 960
+
             log_all_windows()
 
         def screenshot(self):
-            # todo: size of the image ??
             try:
-                result = subprocess.run(['import', '-window', self.window_id, '-silent', 'png:-'],
+                result = subprocess.run(['import', '-window', self.window_id, 'png:-'],
                                         capture_output=True, check=True)
                 image = Image.open(io.BytesIO(result.stdout))
                 image.show()
-                return np.array(image)
+                as_arr = np.asarray(image)
+                # @todo: make sure it is the correct format
+                return as_arr
             except subprocess.CalledProcessError as e:
                 logging.error(f"failed to capture screenshot of window_id '{self.window_id}'")
+                logging.info(result.stdout)
+
+        def move_and_resize(self, x=1, y=20, w=960, h=960):
+            logging.debug(f"resize window {self.window_name} to {w}x{h}")
+            try:
+                result = subprocess.run(['xdotool', 'getdisplaygeometry'], check=True, capture_output=True)
+                logging.debug(f"window size of {self.window_name} is {result.stdout}")
+                result = subprocess.run(['xdotool', 'windowmove', '--sync', str(self.window_id), str(x), str(y)],
+                                    check=True)
+                result = subprocess.run(['xdotool', 'windowsize', '--sync', str(self.window_id), str(w), str(h)],
+                                  check=True)
+            except subprocess.CalledProcessError as e:
+                logging.error(f"failed to resize window_id '{self.window_id}'")
                 raise e
-
-        def move_and_resize():
-            "not sure if this is necessary to implement with the Linux setup"
-            pass
-
 
     def get_window_id(name):
         try:
@@ -119,6 +132,7 @@ elif platform.system() == "Linux":
                 result = subprocess.run(['xdotool', 'getwindowname', window_id],
                                         capture_output=True, text=True, check=True)
                 if result.stdout.strip() == name:
+                    logging.info(f"detected window {name}, id={window_id}")
                     return window_id
 
             logging.error(f"failed to find window '{name}'")
