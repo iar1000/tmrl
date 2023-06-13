@@ -72,7 +72,7 @@ class TM2020InterfaceLutris(RealTimeGymInterface):
         self.resize_to = resize_to
         self.finish_reward = finish_reward
         self.constant_penalty = constant_penalty
-        logging.warn("correct")
+        logging.error("correct")
         self.initialized = False
 
     def initialize_common(self):
