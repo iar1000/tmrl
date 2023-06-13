@@ -79,9 +79,12 @@ if platform.system() == "Windows":
 
 elif platform.system() == "Linux":
     import subprocess
+    from PIL import Image
+
 
     class NoSuchWindowException(Exception):
         pass
+
 
     class WindowInterface:
         def __init__(self, window_name="Trackmania"):
@@ -89,6 +92,16 @@ elif platform.system() == "Linux":
             self.window_id = get_window_id(window_name)
 
             log_all_windows()
+
+        def screenshot(self):
+            try:
+                result = subprocess.run(['import', '-window', self.window_id, '-silent', '-resize', '1920x1080', 'png:-'],
+                                        capture_output=True, check=True)
+                image = Image.open(result.stdout)
+                image.show()
+                return np.array(image)
+            except subprocess.CalledProcessError as e:
+                print(f"Error: {e}")
 
 
     def get_window_id(name):
@@ -101,7 +114,7 @@ elif platform.system() == "Linux":
                                         capture_output=True, text=True, check=True)
                 if result.stdout.strip() == name:
                     return window_id
-            
+
             logging.error(f"failed to find window '{name}'")
             raise NoSuchWindowException(name)
 
@@ -109,11 +122,12 @@ elif platform.system() == "Linux":
             logging.error(f"process error searching for window '{name}")
             raise e
 
+
     # debug
     def log_all_windows():
         try:
             result = subprocess.run(['xdotool', 'search', '--onlyvisible', '--name', '.'],
-                                    capture_output=True,text=True, check=True)
+                                    capture_output=True, text=True, check=True)
             window_ids = result.stdout.strip().split('\n')
             for window_id in window_ids:
                 result = subprocess.run(['xdotool', 'getwindowname', window_id], capture_output=True, text=True,
@@ -125,7 +139,6 @@ elif platform.system() == "Linux":
 
     def profile_screenshot():
         pass
-
 
 if __name__ == "__main__":
     profile_screenshot()
