@@ -80,6 +80,9 @@ if platform.system() == "Windows":
 elif platform.system() == "Linux":
     import subprocess
 
+    class NoSuchWindowException(Exception):
+        pass
+
     class WindowInterface:
         def __init__(self, window_name="Trackmania"):
             self.window_name = window_name
@@ -89,7 +92,7 @@ elif platform.system() == "Linux":
 
 
     def get_window_id(name):
-        try:
+        try:pass
             result = subprocess.run(['xdotool', 'search', '--onlyvisible', '--name', '.'],
                                     capture_output=True, text=True, check=True)
             window_ids = result.stdout.strip().split('\n')
@@ -98,12 +101,15 @@ elif platform.system() == "Linux":
                                         capture_output=True, text=True, check=True)
                 if result.stdout.strip() == name:
                     return window_id
-            return None
-        except subprocess.CalledProcessError as e:
-            logging.error(f"failed to find window '{name}: {e}")
-            return None
+            
+            logging.error(f"failed to find window '{name}'")
+            raise NoSuchWindowException(name)
 
-    @logging.debug
+        except subprocess.CalledProcessError as e:
+            logging.error(f"process error searching for window '{name}")
+            raise e
+
+    # debug
     def log_all_windows():
         try:
             result = subprocess.run(['xdotool', 'search', '--onlyvisible', '--name', '.'],
@@ -112,7 +118,7 @@ elif platform.system() == "Linux":
             for window_id in window_ids:
                 result = subprocess.run(['xdotool', 'getwindowname', window_id], capture_output=True, text=True,
                                         check=True)
-                logging.debug(f"found window {result.stdout.strip()}")
+                logging.debug(f"found window: {result.stdout.strip()}")
         except subprocess.CalledProcessError as e:
             logging.error(f"failed to log windows: {e}")
 
