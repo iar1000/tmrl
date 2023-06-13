@@ -75,8 +75,14 @@ if __name__ == "__main__":
     parser.add_argument('--record-reward', dest='record_reward', action='store_true', help='utility to record a reward function in TM20')
     parser.add_argument('--check-environment', dest='check_env', action='store_true', help='utility to check the environment')
     parser.add_argument('--no-wandb', dest='no_wandb', action='store_true', help='(use with --trainer) if you do not want to log results on Weights and Biases, use this option')
+    parser.add_argument('-v', '--verbose', action='store_true', help='set log level to DEBUG')    
     parser.add_argument('-d', '--config', type=json.loads, default={}, help='dictionary containing configuration options (modifiers) for the rtgym environment')
     arguments = parser.parse_args()
     logging.info(arguments)
+
+    if arguments.verbose:
+        logging.getLogger().setLevel(logging.DEBUG)
+        logging.debug("log in debug mode")
+
 
     main(arguments)
