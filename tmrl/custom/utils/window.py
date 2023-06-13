@@ -1,3 +1,4 @@
+import logging
 import platform
 
 if platform.system() == "Windows":
@@ -76,9 +77,45 @@ if platform.system() == "Windows":
         pro.stop()
         pro.print(show_all=True)
 
-else:  # dummy import on Linux for uninitialized environments
+elif platform.system() == "Linux":
+    import subprocess
+
     class WindowInterface:
-        pass
+        def __init__(self, window_name="Trackmania"):
+            self.window_name = window_name
+            self.window_id = get_window_id(window_name)
+
+            log_all_windows()
+
+
+    def get_window_id(name):
+        try:
+            result = subprocess.run(['xdotool', 'search', '--onlyvisible', '--name', '.'],
+                                    capture_output=True, text=True, check=True)
+            window_ids = result.stdout.strip().split('\n')
+            for window_id in window_ids:
+                result = subprocess.run(['xdotool', 'getwindowname', window_id],
+                                        capture_output=True, text=True, check=True)
+                if result.stdout.strip() == name:
+                    return window_id
+            return None
+        except subprocess.CalledProcessError as e:
+            logging.error(f"failed to find window '{name}: {e}")
+            return None
+
+    @logging.debug
+    def log_all_windows():
+        try:
+            result = subprocess.run(['xdotool', 'search', '--onlyvisible', '--name', '.'],
+                                    capture_output=True,text=True, check=True)
+            window_ids = result.stdout.strip().split('\n')
+            for window_id in window_ids:
+                result = subprocess.run(['xdotool', 'getwindowname', window_id], capture_output=True, text=True,
+                                        check=True)
+                logging.debug(f"found window {result.stdout.strip()}")
+        except subprocess.CalledProcessError as e:
+            logging.error(f"failed to log windows: {e}")
+
 
     def profile_screenshot():
         pass
