@@ -94,6 +94,7 @@ elif platform.system() == "Linux":
             log_all_windows()
 
         def screenshot(self):
+            # todo: size of the image ??
             try:
                 result = subprocess.run(['import', '-window', self.window_id, '-silent', 'png:-'],
                                         capture_output=True, check=True)
@@ -103,6 +104,10 @@ elif platform.system() == "Linux":
             except subprocess.CalledProcessError as e:
                 logging.error(f"failed to capture screenshot of window_id '{self.window_id}'")
                 raise e
+
+        def move_and_resize():
+            "not sure if this is necessary to implement with the Linux setup"
+            pass
 
 
     def get_window_id(name):
