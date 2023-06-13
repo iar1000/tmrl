@@ -95,13 +95,14 @@ elif platform.system() == "Linux":
 
         def screenshot(self):
             try:
-                result = subprocess.run(['import', '-window', self.window_id, '-silent', '-resize', '1920x1080', 'png:-'],
+                result = subprocess.run(['import', '-window', self.window_id, '-silent', 'png:-'],
                                         capture_output=True, check=True)
-                image = Image.open(result.stdout)
+                image = Image.open(io.BytesIO(result.stdout))
                 image.show()
                 return np.array(image)
             except subprocess.CalledProcessError as e:
-                print(f"Error: {e}")
+                logging.error(f"failed to capture screenshot of window_id '{self.window_id}'")
+                raise e
 
 
     def get_window_id(name):
@@ -132,7 +133,7 @@ elif platform.system() == "Linux":
             for window_id in window_ids:
                 result = subprocess.run(['xdotool', 'getwindowname', window_id], capture_output=True, text=True,
                                         check=True)
-                logging.debug(f"found window: {result.stdout.strip()}")
+                logging.debug(f"found window: {window_id} - {result.stdout.strip()}")
         except subprocess.CalledProcessError as e:
             logging.error(f"failed to log windows: {e}")
 
