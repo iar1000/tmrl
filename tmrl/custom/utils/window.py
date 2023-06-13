@@ -92,7 +92,7 @@ elif platform.system() == "Linux":
 
 
     def get_window_id(name):
-        try:pass
+        try:
             result = subprocess.run(['xdotool', 'search', '--onlyvisible', '--name', '.'],
                                     capture_output=True, text=True, check=True)
             window_ids = result.stdout.strip().split('\n')
