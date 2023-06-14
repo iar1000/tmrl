@@ -42,7 +42,6 @@ def alternative_main(args):
                            crc_debug=cfg.CRC_DEBUG,
                            standalone=args.test)
         if args.worker:
-
             rw.run()
         elif args.benchmark:
             rw.run_env_benchmark(nb_steps=1000, test=False)

@@ -600,6 +600,7 @@ class RolloutWorker:
         """
         act = self.act(obs, test=test)
         self.logger.debug(f"act: {act}")
+        self.logger.debug(f"obs: {obs}")
         new_obs, rew, terminated, truncated, info = self.env.step(act)
         self.logger.debug(f"new_obs: {new_obs}")
         if self.obs_preprocessor is not None:
@@ -663,6 +664,7 @@ class RolloutWorker:
             train (bool): whether the episode is a training or a test episode.
                 `step` is called with `test=not train`.
         """
+        self.logger.debug("run episode")
         ret = 0.0
         steps = 0
         obs, info = self.reset(collect_samples=False)
