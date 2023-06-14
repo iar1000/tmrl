@@ -116,7 +116,7 @@ class TM2020InterfaceLutris(RealTimeGymInterface):
                 actions.append('r')
             elif control[2] < -0.5:
                 actions.append('l')
-            apply_control(actions, self.window_interface.window_id())
+            apply_control(actions, self.window_interface.get_window_id())
 
     def grab_data_and_img(self):
         img = self.window_interface.screenshot()[:, :, :3]  # BGR ordering

@@ -3,12 +3,12 @@ import platform
 import tmrl.config.config_constants as cfg
 import numpy as np
 
-
 if platform.system() == "Windows":
 
     import win32gui
     import win32ui
     import win32con
+
 
     class WindowInterface:
         def __init__(self, window_name="Trackmania"):
@@ -93,10 +93,11 @@ elif platform.system() == "Linux":
             self.window_id = get_window_id(window_name)
 
             # set some default window sizes, smaller sizes are buggy
-            self.h = 960 
+            self.h = 960
             self.w = 960
 
-            log_all_windows()
+            self.logger = logging.getLogger(__name__)
+            # log_all_windows()
 
         # @todo: make sure it is the correct format
         def screenshot(self):
@@ -114,22 +115,22 @@ elif platform.system() == "Linux":
         def move_and_resize(self, x=0, y=0, w=None, h=None):
             h = h if h else self.h
             w = w if w else self.w
-            logging.debug(f"resize window {self.window_name} to {w}x{h} @ {x}, {y}")
+            self.logger.debug(f"resize window {self.window_name} to {w}x{h} @ {x}, {y}")
 
             try:
                 result = subprocess.run(['xdotool', 'getdisplaygeometry'], check=True, capture_output=True)
                 logging.debug(f"window size of display is {result.stdout}")
                 result = subprocess.run(['xdotool', 'windowmove', '--sync', str(self.window_id), str(x), str(y)],
-                                    check=True)
+                                        check=True)
                 result = subprocess.run(['xdotool', 'windowsize', '--sync', str(self.window_id), str(w), str(h)],
-                                  check=True)
+                                        check=True)
             except subprocess.CalledProcessError as e:
                 logging.error(f"failed to resize window_id '{self.window_id}'")
                 raise e
 
-        def window_id():
+        def get_window_id(self):
             return self.window_id
-            
+
 
     def get_window_id(name):
         try:
