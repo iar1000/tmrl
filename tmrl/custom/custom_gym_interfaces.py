@@ -106,21 +106,18 @@ class TM2020InterfaceLutris(RealTimeGymInterface):
         Args:
             control: np.array: [forward,backward,right,left]
         """
-        if self.gamepad:
-            if control is not None:
-                control_gamepad(self.j, control)
-        else:
-            if control is not None:
-                actions = []
-                if control[0] > 0:
-                    actions.append('f')
-                if control[1] > 0:
-                    actions.append('b')
-                if control[2] > 0.5:
-                    actions.append('r')
-                elif control[2] < -0.5:
-                    actions.append('l')
-                apply_control(actions)
+
+        if control is not None:
+            actions = []
+            if control[0] > 0:
+                actions.append('f')
+            if control[1] > 0:
+                actions.append('b')
+            if control[2] > 0.5:
+                actions.append('r')
+            elif control[2] < -0.5:
+                actions.append('l')
+            apply_control(actions, self.window_interface.window_id())
 
     def grab_data_and_img(self):
         img = self.window_interface.screenshot()[:, :, :3]  # BGR ordering

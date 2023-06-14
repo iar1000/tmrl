@@ -98,6 +98,56 @@ if platform.system() == "Windows":
         mouse_close_replay_window_tm20()
         time.sleep(1.0)
 
+elif platform.system() == "Linux":
+    from subprocess import Popen, PIPE
+    
+
+    def PressKey(key):
+        process = subprocess.run(['xdotool', 'keydown', str(key)])
+
+    def ReleaseKey(key):
+        process = subprocess.run(['xdotool', 'keyup', str(key)])
+
+
+    def apply_control(action, window_id):  # move_fast
+
+        process = subprocess.run(['xdotool', 'windowfocus', '--synch', str(window_id)])
+
+        if 'f' in action:
+            PressKey("UP")
+        else:
+            ReleaseKey("UP")
+        if 'b' in action:
+            PressKey("DOWN")
+        else:
+            ReleaseKey("DOWN")
+        if 'l' in action:
+            PressKey("LEFT")
+        else:
+            ReleaseKey("LEFT")
+        if 'r' in action:
+            PressKey("RIGHT")
+        else:
+            ReleaseKey("RIGHT")
+
+    def keyres():
+        PressKey(DEL)
+        ReleaseKey(DEL)
+
+    def keysavereplay():  # TODO: debug
+        PressKey(R)
+        time.sleep(0.1)
+        ReleaseKey(R)
+        time.sleep(1.0)
+        mouse_change_name_replay_tm20()
+        time.sleep(1.0)
+        keyboard.write(str(time.time_ns()))
+        time.sleep(1.0)
+        mouse_save_replay_tm20()
+        time.sleep(1.0)
+        mouse_close_replay_window_tm20()
+        time.sleep(1.0)
+
 else:
 
     def apply_control(action):  # move_fast

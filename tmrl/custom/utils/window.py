@@ -104,7 +104,7 @@ elif platform.system() == "Linux":
                 result = subprocess.run(['import', '-window', self.window_id, 'png:-'],
                                         capture_output=True, check=True)
                 image = Image.open(io.BytesIO(result.stdout))
-                # image.show()
+                image.show()
                 as_arr = np.asarray(image)
                 return as_arr
             except subprocess.CalledProcessError as e:
@@ -118,7 +118,7 @@ elif platform.system() == "Linux":
 
             try:
                 result = subprocess.run(['xdotool', 'getdisplaygeometry'], check=True, capture_output=True)
-                logging.debug(f"window size of {self.window_name} is {result.stdout}")
+                logging.debug(f"window size of display is {result.stdout}")
                 result = subprocess.run(['xdotool', 'windowmove', '--sync', str(self.window_id), str(x), str(y)],
                                     check=True)
                 result = subprocess.run(['xdotool', 'windowsize', '--sync', str(self.window_id), str(w), str(h)],
@@ -126,6 +126,10 @@ elif platform.system() == "Linux":
             except subprocess.CalledProcessError as e:
                 logging.error(f"failed to resize window_id '{self.window_id}'")
                 raise e
+
+        def window_id():
+            return self.window_id
+            
 
     def get_window_id(name):
         try:
