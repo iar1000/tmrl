@@ -92,26 +92,30 @@ elif platform.system() == "Linux":
             self.window_name = window_name
             self.window_id = get_window_id(window_name)
 
-            self.h = 960
+            # set some default window sizes, smaller sizes are buggy
+            self.h = 960 
             self.w = 960
 
             log_all_windows()
 
+        # @todo: make sure it is the correct format
         def screenshot(self):
             try:
                 result = subprocess.run(['import', '-window', self.window_id, 'png:-'],
                                         capture_output=True, check=True)
                 image = Image.open(io.BytesIO(result.stdout))
-                image.show()
+                # image.show()
                 as_arr = np.asarray(image)
-                # @todo: make sure it is the correct format
                 return as_arr
             except subprocess.CalledProcessError as e:
                 logging.error(f"failed to capture screenshot of window_id '{self.window_id}'")
                 logging.info(result.stdout)
 
-        def move_and_resize(self, x=1, y=20, w=960, h=960):
-            logging.debug(f"resize window {self.window_name} to {w}x{h}")
+        def move_and_resize(self, x=0, y=0, w=None, h=None):
+            h = h if h else self.h
+            w = w if w else self.w
+            logging.debug(f"resize window {self.window_name} to {w}x{h} @ {x}, {y}")
+
             try:
                 result = subprocess.run(['xdotool', 'getdisplaygeometry'], check=True, capture_output=True)
                 logging.debug(f"window size of {self.window_name} is {result.stdout}")
