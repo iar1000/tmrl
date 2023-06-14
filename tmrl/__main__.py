@@ -1,4 +1,5 @@
 from tmrl.logger import setup_logging
+import logging
 if (not setup_logging(console_log_output="stdout", console_log_level="debug", console_log_color=True,
                       log_line_template="%(color_on)s %(created)d [%(levelname)-8s] %(name)-12s - %(message)s%(color_off)s")):
     print("Failed to setup logging, aborting.")
@@ -7,7 +8,6 @@ logger = logging.getLogger()
 
 import time
 from argparse import ArgumentParser, ArgumentTypeError
-import logging
 import json
 import platform
 
