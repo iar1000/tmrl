@@ -1,3 +1,10 @@
+from tmrl.logger import setup_logging
+if (not setup_logging(console_log_output="stdout", console_log_level="debug", console_log_color=True,
+                      log_line_template="%(color_on)s %(created)d [%(levelname)-8s] %(name)-12s - %(message)s%(color_off)s")):
+    print("Failed to setup logging, aborting.")
+    quit()
+logger = logging.getLogger()
+
 import time
 from argparse import ArgumentParser, ArgumentTypeError
 import logging
@@ -7,18 +14,11 @@ import platform
 # local imports
 import tmrl.config.config_constants as cfg
 import tmrl.config.config_objects as cfg_obj
-from tmrl.logger import setup_logging
 from tmrl.tools.record import record_reward_dist
 from tmrl.tools.check_environment import check_env_tm20lidar, check_env_tm20full
 from tmrl.envs import GenericGymEnv
 from tmrl.networking import Server, Trainer, RolloutWorker
 from tmrl.util import partial
-
-if (not setup_logging(console_log_output="stdout", console_log_level="debug", console_log_color=True,
-                      log_line_template="%(color_on)s %(created)d [%(levelname)-8s] %(name)-12s - %(message)s%(color_off)s")):
-    print("Failed to setup logging, aborting.")
-    quit()
-logger = logging.getLogger()
 
 
 def alternative_main(args):
