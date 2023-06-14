@@ -488,6 +488,7 @@ class RolloutWorker:
             keys_dir (str): tlspyo credentials directory; usually, leave this to the default
             hostname (str): tlspyo hostname; usually, leave this to the default
         """
+        self.logger = logging.getLogger(__name__)
         self.obs_preprocessor = obs_preprocessor
         self.get_local_buffer_sample = sample_compressor
         self.env = env_cls()
@@ -499,10 +500,10 @@ class RolloutWorker:
         self.actor = actor_module_cls(observation_space=obs_space, action_space=act_space).to_device(self.device)
         self.standalone = standalone
         if os.path.isfile(self.model_path):
-            logging.debug(f"Loading model from {self.model_path}")
+            self.logger.debug(f"Loading model from {self.model_path}")
             self.actor = self.actor.load(self.model_path, device=self.device)
         else:
-            logging.debug(f"No model found at {self.model_path}")
+            self.logger.debug(f"No model found at {self.model_path}")
         self.buffer = Buffer()
         self.max_samples_per_episode = max_samples_per_episode
         self.crc_debug = crc_debug
@@ -511,7 +512,8 @@ class RolloutWorker:
 
         self.server_ip = server_ip if server_ip is not None else '127.0.0.1'
 
-        print_with_timestamp(f"server IP: {self.server_ip}")
+        self.logger.info(f"server IP: {self.server_ip}")
+        # print_with_timestamp(f"server IP: {self.server_ip}")
 
         if not self.standalone:
             self.__endpoint = Endpoint(ip_server=self.server_ip,
@@ -571,6 +573,7 @@ class RolloutWorker:
             else:
                 sample = act, new_obs, rew, terminated, truncated, info
             self.buffer.append_sample(sample)
+        self.logger.info("reset environment")
         return new_obs, info
 
     def step(self, obs, test, collect_samples, last_step=False):
@@ -596,7 +599,9 @@ class RolloutWorker:
             dict: information dictionary)
         """
         act = self.act(obs, test=test)
+        self.logger.debug(f"act: {act}")
         new_obs, rew, terminated, truncated, info = self.env.step(act)
+        self.logger.debug(f"new_obs: {new_obs}")
         if self.obs_preprocessor is not None:
             new_obs = self.obs_preprocessor(new_obs)
         if collect_samples:
@@ -685,13 +690,17 @@ class RolloutWorker:
         episode = 0
         while episode < nb_episodes:
             if episode % test_episode_interval == 0 and not self.crc_debug:
-                print_with_timestamp("running test episode")
+                self.logger.info("run test episode")
+                # print_with_timestamp("running test episode")
                 self.run_episode(self.max_samples_per_episode, train=False)
-            print_with_timestamp("collecting train episode")
+            self.logger.info("collecting train episode")
+            # print_with_timestamp("collecting train episode")
             self.collect_train_episode(self.max_samples_per_episode)
-            print_with_timestamp("copying buffer for sending")
+            self.logger.info("copying buffer for sending")
+            # print_with_timestamp("copying buffer for sending")
             self.send_and_clear_buffer()
-            print_with_timestamp("checking for new weights")
+            self.logger.info("checking for new weights")
+            # print_with_timestamp("checking for new weights")
             self.update_actor_weights()
             episode += 1
             # if self.crc_debug:
@@ -740,6 +749,8 @@ class RolloutWorker:
                     with open(self.model_path_history + str(x.strftime("%d_%m_%Y_%H_%M_%S")) + ".tmod", 'wb') as f:
                         f.write(weights)
                     self._cur_hist_cpt = 0
-                    print_with_timestamp("model weights saved in history")
+                    self.logger.info("model weights saved in history")
+                    # print_with_timestamp("model weights saved in history")
             self.actor = self.actor.load(self.model_path, device=self.device)
-            print_with_timestamp("model weights have been updated")
+            self.logger.info("model weights have been updated")
+            # print_with_timestamp("model weights have been updated")

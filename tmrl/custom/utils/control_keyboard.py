@@ -99,7 +99,7 @@ if platform.system() == "Windows":
         time.sleep(1.0)
 
 elif platform.system() == "Linux":
-    from subprocess import Popen, PIPE
+    import subprocess
     
 
     def PressKey(key):
@@ -131,8 +131,8 @@ elif platform.system() == "Linux":
             ReleaseKey("RIGHT")
 
     def keyres():
-        PressKey(DEL)
-        ReleaseKey(DEL)
+        PressKey("DEL")
+        ReleaseKey("DEL")
 
     def keysavereplay():  # TODO: debug
         PressKey(R)

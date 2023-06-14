@@ -75,12 +75,9 @@ class TM2020InterfaceLutris(RealTimeGymInterface):
 
         self.initialized = False
 
+        self.logger = logging.getLogger(__name__)
+
     def initialize_common(self):
-        if self.gamepad:
-            assert platform.system() == "Windows", "Sorry, Only Windows is supported for gamepad control"
-            import vgamepad as vg
-            self.j = vg.VX360Gamepad()
-            logging.debug(" virtual joystick in use")
         self.window_interface = WindowInterface("Trackmania")
         self.window_interface.move_and_resize()
         self.last_time = time.time()
@@ -94,9 +91,11 @@ class TM2020InterfaceLutris(RealTimeGymInterface):
         self.client = TM2020OpenPlanetClient()
 
     def initialize(self):
+        self.logger.debug("start initializing")
         self.initialize_common()
         self.small_window = True
         self.initialized = True
+        self.logger.info("intialized")
 
     def send_control(self, control):
         """
@@ -106,7 +105,7 @@ class TM2020InterfaceLutris(RealTimeGymInterface):
         Args:
             control: np.array: [forward,backward,right,left]
         """
-
+        self.logger.debug(f"send_control: {control}")
         if control is not None:
             actions = []
             if control[0] > 0:

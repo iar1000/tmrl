@@ -4,15 +4,21 @@ import logging
 import json
 import platform
 
-
 # local imports
 import tmrl.config.config_constants as cfg
 import tmrl.config.config_objects as cfg_obj
+from tmrl.logger import setup_logging
 from tmrl.tools.record import record_reward_dist
 from tmrl.tools.check_environment import check_env_tm20lidar, check_env_tm20full
 from tmrl.envs import GenericGymEnv
 from tmrl.networking import Server, Trainer, RolloutWorker
 from tmrl.util import partial
+
+if (not setup_logging(console_log_output="stdout", console_log_level="debug", console_log_color=True,
+                      log_line_template="%(color_on)s %(created)d [%(levelname)-8s] %(name)-12s - %(message)s%(color_off)s")):
+    print("Failed to setup logging, aborting.")
+    quit()
+logger = logging.getLogger()
 
 
 def alternative_main(args):
@@ -127,19 +133,18 @@ if __name__ == "__main__":
     parser.add_argument('--worker', action='store_true', help='launches a rollout worker')
     parser.add_argument('--test', action='store_true', help='runs inference without training')
     parser.add_argument('--benchmark', action='store_true', help='runs a benchmark of the environment')
-    parser.add_argument('--record-reward', dest='record_reward', action='store_true', help='utility to record a reward function in TM20')
-    parser.add_argument('--check-environment', dest='check_env', action='store_true', help='utility to check the environment')
-    parser.add_argument('--no-wandb', dest='no_wandb', action='store_true', help='(use with --trainer) if you do not want to log results on Weights and Biases, use this option')
-    parser.add_argument('-v', '--verbose', action='store_true', help='set log level to DEBUG')    
-    parser.add_argument('-d', '--config', type=json.loads, default={}, help='dictionary containing configuration options (modifiers) for the rtgym environment')
+    parser.add_argument('--record-reward', dest='record_reward', action='store_true',
+                        help='utility to record a reward function in TM20')
+    parser.add_argument('--check-environment', dest='check_env', action='store_true',
+                        help='utility to check the environment')
+    parser.add_argument('--no-wandb', dest='no_wandb', action='store_true',
+                        help='(use with --trainer) if you do not want to log results on Weights and Biases, use this option')
+    parser.add_argument('-d', '--config', type=json.loads, default={},
+                        help='dictionary containing configuration options (modifiers) for the rtgym environment')
     arguments = parser.parse_args()
-    logging.info(arguments)
+    logger.info(arguments)
 
-    if arguments.verbose:
-        logging.getLogger().setLevel(logging.DEBUG)
-        logging.debug("log in debug mode")
-
-    if platform.system() == "Linux": 
+    if platform.system() == "Linux":
         alternative_main(arguments)
     else:
         main(arguments)
