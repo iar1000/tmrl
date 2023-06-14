@@ -109,8 +109,8 @@ elif platform.system() == "Linux":
                 as_arr = np.asarray(image)
                 return as_arr
             except subprocess.CalledProcessError as e:
-                logging.error(f"failed to capture screenshot of window_id '{self.window_id}'")
-                logging.info(result.stdout)
+                self.logger.error(f"failed to capture screenshot of window_id '{self.window_id}'")
+                self.logger.info(result.stdout)
 
         def move_and_resize(self, x=0, y=0, w=None, h=None):
             h = h if h else self.h
@@ -119,13 +119,13 @@ elif platform.system() == "Linux":
 
             try:
                 result = subprocess.run(['xdotool', 'getdisplaygeometry'], check=True, capture_output=True)
-                logging.debug(f"window size of display is {result.stdout}")
+                self.logger.debug(f"window size of display is {result.stdout}")
                 result = subprocess.run(['xdotool', 'windowmove', '--sync', str(self.window_id), str(x), str(y)],
                                         check=True)
                 result = subprocess.run(['xdotool', 'windowsize', '--sync', str(self.window_id), str(w), str(h)],
                                         check=True)
             except subprocess.CalledProcessError as e:
-                logging.error(f"failed to resize window_id '{self.window_id}'")
+                self.logger.error(f"failed to resize window_id '{self.window_id}'")
                 raise e
 
         def get_window_id(self):
