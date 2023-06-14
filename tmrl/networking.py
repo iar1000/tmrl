@@ -558,6 +558,7 @@ class RolloutWorker:
             (nested structure: observation retrieved from the environment,
             dict: information retrieved from the environment)
         """
+        self.logger.info("reset environment")
         obs = None
         act = self.env.default_action.astype(np.float32)
         new_obs, info = self.env.reset()
@@ -573,7 +574,6 @@ class RolloutWorker:
             else:
                 sample = act, new_obs, rew, terminated, truncated, info
             self.buffer.append_sample(sample)
-        self.logger.info("reset environment")
         return new_obs, info
 
     def step(self, obs, test, collect_samples, last_step=False):
