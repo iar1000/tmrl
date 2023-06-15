@@ -83,6 +83,7 @@ elif platform.system() == "Linux":
     import io
     import logging
     from tmrl.logger import setup_logger
+    import time
 
 
     class NoSuchWindowException(Exception):
@@ -93,10 +94,6 @@ elif platform.system() == "Linux":
         def __init__(self, window_name="Trackmania"):
             self.window_name = window_name
             self.window_id = get_window_id(window_name)
-
-            # set some default window sizes, smaller sizes are buggy
-            self.h = 960
-            self.w = 960
 
             self.logger = logging.getLogger(__name__)
             setup_logger(self.logger, __name__)
@@ -115,18 +112,27 @@ elif platform.system() == "Linux":
                 self.logger.error(f"failed to capture screenshot of window_id '{self.window_id}'")
                 self.logger.info(result.stdout)
 
-        def move_and_resize(self, x=10, y=10, w=None, h=None):
-            h = h if h else self.h
-            w = w if w else self.w
-            self.logger.debug(f"resize window {self.window_name} to {w}x{h} @ {x}, {y}")
+        def move_and_resize(self, x=10, y=10, w=cfg.WINDOW_WIDTH, h=cfg.WINDOW_HEIGHT):
+            self.logger.debug(f"{self.window_name} to {w}x{h} @ {x}, {y}")
 
             try:
-                result = subprocess.run(['xdotool', 'getdisplaygeometry'], check=True, capture_output=True)
-                self.logger.debug(f"window size of display is {result.stdout}")
-                result = subprocess.run(['xdotool', 'windowmove', '--sync', str(self.window_id), str(x), str(y)],
+                # debug
+                result = subprocess.run(['xdotool', 'windowfocus', str(self.window_id)])
+                result = subprocess.run(['xdotool', 'getdisplaygeometry'], check=True, capture_output=True, text=True)
+                self.logger.debug(f"screen size: {str(result.stdout)}")
+
+                # move
+                self.logger.debug(f"move window {str(self.window_name)}")
+                result = subprocess.run(['xdotool', 'windowmove', str(self.window_id), str(x), str(y)],
                                         check=True)
-                result = subprocess.run(['xdotool', 'windowsize', '--sync', str(self.window_id), str(w), str(h)],
+                # resize
+                self.logger.debug(f"resize window {str(self.window_name)}")
+                result = subprocess.run(['xdotool', 'windowsize', str(self.window_id), str(w), str(h)],
                                         check=True)
+                # instead of using xdotool --sync, which doesn't return
+                self.logger.debug(f"success, let me nap 2s to make sure everything computed")
+                time.sleep(2)
+
             except subprocess.CalledProcessError as e:
                 self.logger.error(f"failed to resize window_id '{self.window_id}'")
                 raise e

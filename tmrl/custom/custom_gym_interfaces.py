@@ -103,7 +103,6 @@ class TM2020InterfaceLutris(RealTimeGymInterface):
 
 
     def initialize(self):
-        self.test_interface()
         self.logger.debug("start initializing")
         self.initialize_common()
         self.small_window = True
