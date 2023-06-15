@@ -1,5 +1,5 @@
-from tmrl.logger import setup_logger
 import logging
+from tmrl.logger import setup_logger
 
 import time
 from argparse import ArgumentParser, ArgumentTypeError
