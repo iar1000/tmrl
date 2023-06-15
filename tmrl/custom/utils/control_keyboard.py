@@ -109,8 +109,8 @@ elif platform.system() == "Linux":
     KEY_LEFT = "Left"
     KEY_BACKSPACE = "BackSpace"
     
-    logger = logging.getLogger(__name__)
-    setup_logger(logger, __name__)
+    logger = logging.getLogger("Keyboard")
+    setup_logger(logger)
 
     def PressKey(key):
         process = subprocess.run(['xdotool', 'keydown', str(key)])
