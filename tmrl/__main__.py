@@ -1,5 +1,6 @@
 import logging
-from tmrl.logger import setup_logger, LOG_LEVEL
+from tmrl.logger import setup_logger
+import tmrl.logger
 
 import time
 from argparse import ArgumentParser, ArgumentTypeError
@@ -86,7 +87,7 @@ if __name__ == "__main__":
     arguments = parser.parse_args()
 
     if arguments.verbose:
-        LOG_LEVEL = logging.DEBUG
+        tmrl.logger.LOG_LEVEL = logging.DEBUG
 
     logger = logging.getLogger()
     setup_logger(logger)
