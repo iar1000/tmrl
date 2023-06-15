@@ -19,6 +19,7 @@ from tmrl.actor import ActorModule
 from tmrl.util import dump, load, partial_to_dict
 import tmrl.config.config_constants as cfg
 import tmrl.config.config_objects as cfg_obj
+from tmrl.logger import setup_logger
 
 import logging
 
@@ -489,6 +490,8 @@ class RolloutWorker:
             hostname (str): tlspyo hostname; usually, leave this to the default
         """
         self.logger = logging.getLogger(__name__)
+        setup_logger(self.logger)
+
         self.obs_preprocessor = obs_preprocessor
         self.get_local_buffer_sample = sample_compressor
         self.env = env_cls()

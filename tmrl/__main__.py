@@ -1,10 +1,5 @@
-from tmrl.logger import setup_logging
+from tmrl.logger import setup_logger
 import logging
-if (not setup_logging(console_log_output="stdout", console_log_level="debug", console_log_color=True,
-                      log_line_template="%(color_on)s %(created)d [%(levelname)-8s] %(name)-12s - %(message)s%(color_off)s")):
-    print("Failed to setup logging, aborting.")
-    quit()
-logger = logging.getLogger()
 
 import time
 from argparse import ArgumentParser, ArgumentTypeError
@@ -140,7 +135,11 @@ if __name__ == "__main__":
                         help='(use with --trainer) if you do not want to log results on Weights and Biases, use this option')
     parser.add_argument('-d', '--config', type=json.loads, default={},
                         help='dictionary containing configuration options (modifiers) for the rtgym environment')
+    parser.add_argument('-v', '--verbose', action='store_true', help='verbose logging')             
     arguments = parser.parse_args()
+
+    logger = logging.getLogger()
+    setup_logger(logger)
     logger.info(arguments)
 
     if platform.system() == "Linux":

@@ -22,6 +22,8 @@ from tmrl.custom.utils.control_mouse import mouse_close_finish_pop_up_tm20
 from tmrl.custom.utils.control_keyboard import apply_control, keyres
 from tmrl.custom.utils.window import WindowInterface
 from tmrl.custom.utils.tools import Lidar, TM2020OpenPlanetClient, save_ghost
+from tmrl.logger import setup_logger
+
 
 # Globals ==============================================================================================================
 
@@ -77,6 +79,8 @@ class TM2020InterfaceLutris(RealTimeGymInterface):
         self.initialized = False
 
         self.logger = logging.getLogger(__name__)
+        setup_logger(self.logger)
+
 
     def initialize_common(self):
         self.window_interface = WindowInterface("Trackmania")
@@ -91,7 +95,15 @@ class TM2020InterfaceLutris(RealTimeGymInterface):
                                               min_nb_steps_before_failure=self.min_nb_steps_before_failure)
         self.client = TM2020OpenPlanetClient()
 
+    def test_interface(self):
+        self.logger.debug("testing interface")
+        self.window_interface = WindowInterface("Trackmania")
+        self.window_interface.move_and_resize()
+        time.sleep(100)
+
+
     def initialize(self):
+        self.test_interface()
         self.logger.debug("start initializing")
         self.initialize_common()
         self.small_window = True

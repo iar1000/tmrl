@@ -8,6 +8,7 @@ import time
 from tmrl.custom.utils.control_mouse import (mouse_change_name_replay_tm20,
                                              mouse_close_replay_window_tm20,
                                              mouse_save_replay_tm20)
+from tmrl.logger import setup_logger
 
 if platform.system() == "Windows":
     # standard library imports
@@ -100,7 +101,10 @@ if platform.system() == "Windows":
 
 elif platform.system() == "Linux":
     import subprocess
+    import logging
     
+    logger = logging.getLogger(__name__)
+    setup_logger(logger)
 
     def PressKey(key):
         process = subprocess.run(['xdotool', 'keydown', str(key)])
