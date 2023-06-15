@@ -54,10 +54,10 @@ else:
                       gamepad=cfg.PRAGMA_GAMEPAD,
                       grayscale=cfg.GRAYSCALE,
                       resize_to=(cfg.IMG_WIDTH, cfg.IMG_HEIGHT))
-    else:
+    if platform.system() == "Linux":
         INT = partial(TM2020InterfaceLutris,
                       img_hist_len=cfg.IMG_HIST_LEN,
-                      gamepad=cfg.PRAGMA_GAMEPAD,
+                      gamepad=False,
                       grayscale=cfg.GRAYSCALE,
                       resize_to=(cfg.IMG_WIDTH, cfg.IMG_HEIGHT))
 

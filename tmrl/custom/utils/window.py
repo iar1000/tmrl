@@ -112,7 +112,7 @@ elif platform.system() == "Linux":
                 self.logger.error(f"failed to capture screenshot of window_id '{self.window_id}'")
                 self.logger.info(result.stdout)
 
-        def move_and_resize(self, x=0, y=0, w=None, h=None):
+        def move_and_resize(self, x=10, y=10, w=None, h=None):
             h = h if h else self.h
             w = w if w else self.w
             self.logger.debug(f"resize window {self.window_name} to {w}x{h} @ {x}, {y}")
