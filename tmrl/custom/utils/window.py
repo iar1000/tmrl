@@ -85,6 +85,8 @@ elif platform.system() == "Linux":
     from tmrl.logger import setup_logger
     import time
 
+    logging.getLogger("PIL.PngImagePlugin").setLevel(logging.CRITICAL)
+
 
     class NoSuchWindowException(Exception):
         pass
@@ -105,7 +107,7 @@ elif platform.system() == "Linux":
                 result = subprocess.run(['import', '-window', self.window_id, 'png:-'],
                                         capture_output=True, check=True)
                 image = Image.open(io.BytesIO(result.stdout))
-                image.show()
+                # image.show()
                 as_arr = np.asarray(image)
                 return as_arr
             except subprocess.CalledProcessError as e:

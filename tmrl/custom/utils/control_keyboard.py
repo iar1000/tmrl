@@ -102,6 +102,12 @@ if platform.system() == "Windows":
 elif platform.system() == "Linux":
     import subprocess
     import logging
+
+    KEY_UP = "Up"
+    KEY_DOWN = "Down"
+    KEY_RIGHT = "Right"
+    KEY_LEFT = "Left"
+    KEY_BACKSPACE = "BackSpace"
     
     logger = logging.getLogger(__name__)
     setup_logger(logger, __name__)
@@ -115,28 +121,28 @@ elif platform.system() == "Linux":
 
     def apply_control(action, window_id):  # move_fast
 
-        process = subprocess.run(['xdotool', 'windowfocus', '--synch', str(window_id)])
+        process = subprocess.run(['xdotool', 'windowfocus', '--sync', str(window_id)])
 
         if 'f' in action:
-            PressKey("UP")
+            PressKey(KEY_UP)
         else:
-            ReleaseKey("UP")
+            ReleaseKey(KEY_UP)
         if 'b' in action:
-            PressKey("DOWN")
+            PressKey(KEY_DOWN)
         else:
-            ReleaseKey("DOWN")
+            ReleaseKey(KEY_DOWN)
         if 'l' in action:
-            PressKey("LEFT")
+            PressKey(KEY_LEFT)
         else:
-            ReleaseKey("LEFT")
+            ReleaseKey(KEY_LEFT)
         if 'r' in action:
-            PressKey("RIGHT")
+            PressKey(KEY_RIGHT)
         else:
-            ReleaseKey("RIGHT")
+            ReleaseKey(KEY_RIGHT)
 
     def keyres():
-        PressKey("DEL")
-        ReleaseKey("DEL")
+        PressKey(KEY_BACKSPACE)
+        ReleaseKey(KEY_BACKSPACE)
 
     def keysavereplay():  # TODO: debug
         PressKey(R)

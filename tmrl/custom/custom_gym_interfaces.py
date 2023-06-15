@@ -117,7 +117,6 @@ class TM2020InterfaceLutris(RealTimeGymInterface):
         Args:
             control: np.array: [forward,backward,right,left]
         """
-        self.logger.debug(f"send_control: {control}")
         if control is not None:
             actions = []
             if control[0] > 0:
@@ -192,7 +191,6 @@ class TM2020InterfaceLutris(RealTimeGymInterface):
             time.sleep(1.0)
         self.reset_race()
         time.sleep(0.5)
-        self.close_finish_pop_up_tm20()
 
     def get_obs_rew_terminated_info(self):
         """
@@ -220,7 +218,7 @@ class TM2020InterfaceLutris(RealTimeGymInterface):
             rew += self.finish_reward
         rew += self.constant_penalty
         rew = np.float32(rew)
-        self.logger.debug(f"get_observation: {obs}, {rew}, {info}")
+        self.logger.debug(f"obs: speed={speed}, gear={gear}, rpm={rpm}")
         return obs, rew, terminated, info
 
     def get_observation_space(self):

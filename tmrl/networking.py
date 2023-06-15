@@ -602,10 +602,8 @@ class RolloutWorker:
             dict: information dictionary)
         """
         act = self.act(obs, test=test)
-        self.logger.debug(f"act: {act}")
-        self.logger.debug(f"obs: {obs}")
+        self.logger.debug(f"take action: {act}")
         new_obs, rew, terminated, truncated, info = self.env.step(act)
-        self.logger.debug(f"new_obs: {new_obs}")
         if self.obs_preprocessor is not None:
             new_obs = self.obs_preprocessor(new_obs)
         if collect_samples:

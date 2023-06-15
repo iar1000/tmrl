@@ -3,18 +3,29 @@ from PIL import Image
 import io
 
 
-result = subprocess.run(['xdotool', 'search', '--name', 'tmrl-pius'],
-                                        capture_output=True)
-# window_ids = result.stdout.strip().split('\n')
+def get_window_id(name):
+        try:
+            result = subprocess.run(['xdotool', 'search', '--onlyvisible', '--name', '.'],
+                                    capture_output=True, text=True, check=True)
+            window_ids = result.stdout.strip().split('\n')
+            for window_id in window_ids:
+                result = subprocess.run(['xdotool', 'getwindowname', window_id],
+                                        capture_output=True, text=True, check=True)
+                if result.stdout.strip() == name:
+                    return window_id
 
-result = subprocess.run(['import', '-window', str(39845898), '-silent', '-resize', '1920x1080', 'png:-'],
-                                        capture_output=True, check=True)
-print(len(result.stdout))
-image = Image.open(io.BytesIO(result.stdout))
-image.show()  
+            raise NoSuchWindowException(name)
 
-result = subprocess.run(['import', '-window', str(39845898), '-silent', '-resize', '64x164', 'png:-'],
-                                        capture_output=True, check=True)
-print(len(result.stdout))
-image = Image.open(io.BytesIO(result.stdout))
-image.show() 
+        except subprocess.CalledProcessError as e:
+            raise e
+
+def PressKey(key):
+    process = subprocess.run(['xdotool', 'keydown', str(key)])
+
+def ReleaseKey(key):
+    process = subprocess.run(['xdotool', 'keyup', str(key)])
+
+idd = get_window_id("Trackmania")
+
+process = subprocess.run(['xdotool', 'windowfocus', '--sync', str(idd)])
+PressKey("BackSpace")
