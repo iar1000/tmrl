@@ -3,7 +3,7 @@
 import logging
 
 
-LOG_FORMAT = "[%(levelname)-8s] - %(name)-15s - %(funcName)15s() - %(message)s"
+LOG_FORMAT = "[%(levelname)-5s] - %(name)-15s - %(funcName)15s() - %(message)s"
 LOG_LEVEL = logging.INFO
 
 def setup_logger(logger):
@@ -15,4 +15,3 @@ def setup_logger(logger):
         console_handler.setFormatter(formatter)
         logger.addHandler(console_handler)
         logger.setLevel(LOG_LEVEL)
-        print(LOG_LEVEL)

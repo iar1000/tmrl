@@ -89,6 +89,7 @@ elif platform.system() == "Linux":
 
 
     class NoSuchWindowException(Exception):
+        """thrown if a named window can't be found"""
         pass
 
 
@@ -112,10 +113,9 @@ elif platform.system() == "Linux":
                 return as_arr
             except subprocess.CalledProcessError as e:
                 self.logger.error(f"failed to capture screenshot of window_id '{self.window_id}'")
-                self.logger.info(result.stdout)
 
         def move_and_resize(self, x=10, y=10, w=cfg.WINDOW_WIDTH, h=cfg.WINDOW_HEIGHT):
-            self.logger.debug(f"{self.window_name} to {w}x{h} @ {x}, {y}")
+            self.logger.info(f"prepare {self.window_name} to {w}x{h} @ {x}, {y}")
 
             try:
                 # debug
@@ -133,7 +133,7 @@ elif platform.system() == "Linux":
                                         check=True)
                 # instead of using xdotool --sync, which doesn't return
                 self.logger.debug(f"success, let me nap 2s to make sure everything computed")
-                time.sleep(2)
+                time.sleep(1)
 
             except subprocess.CalledProcessError as e:
                 self.logger.error(f"failed to resize window_id '{self.window_id}'")
@@ -141,6 +141,10 @@ elif platform.system() == "Linux":
 
         def get_window_id(self):
             return self.window_id
+
+
+    logger_wi = logging.getLogger("WindowInterfaceL")
+    setup_logger(logger_wi)
 
 
     def get_window_id(name):
@@ -152,14 +156,14 @@ elif platform.system() == "Linux":
                 result = subprocess.run(['xdotool', 'getwindowname', window_id],
                                         capture_output=True, text=True, check=True)
                 if result.stdout.strip() == name:
-                    logging.info(f"detected window {name}, id={window_id}")
+                    logger_wi.info(f"detected window {name}, id={window_id}")
                     return window_id
 
-            logging.error(f"failed to find window '{name}'")
+            logger_wi.error(f"failed to find window '{name}'")
             raise NoSuchWindowException(name)
 
         except subprocess.CalledProcessError as e:
-            logging.error(f"process error searching for window '{name}")
+            logger_wi.error(f"process error searching for window '{name}")
             raise e
 
 
@@ -172,9 +176,9 @@ elif platform.system() == "Linux":
             for window_id in window_ids:
                 result = subprocess.run(['xdotool', 'getwindowname', window_id], capture_output=True, text=True,
                                         check=True)
-                logging.debug(f"found window: {window_id} - {result.stdout.strip()}")
+                logger_wi.debug(f"found window: {window_id} - {result.stdout.strip()}")
         except subprocess.CalledProcessError as e:
-            logging.error(f"failed to log windows: {e}")
+            logger_wi.error(f"failed to log windows: {e}")
 
 
     def profile_screenshot():

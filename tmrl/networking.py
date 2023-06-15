@@ -164,6 +164,9 @@ class TrainerInterface:
                  keys_dir=cfg.CREDENTIALS_DIRECTORY,
                  hostname=cfg.HOSTNAME,
                  model_path=cfg.MODEL_PATH_TRAINER):
+        self.logger = logging.getLogger("TrainerInterface")
+        setup_logger(self.logger)
+
         self.model_path = model_path
         self.server_ip = server_ip if server_ip is not None else '127.0.0.1'
         self.__endpoint = Endpoint(ip_server=self.server_ip,
@@ -177,7 +180,7 @@ class TrainerInterface:
                                    keys_dir=keys_dir,
                                    hostname=hostname)
 
-        print_with_timestamp(f"server IP: {self.server_ip}")
+        self.logger.info(f"server IP: {self.server_ip}")
 
         self.__endpoint.notify(groups={'trainers': -1})  # retrieve everything
 
@@ -186,6 +189,7 @@ class TrainerInterface:
         model must be an ActorModule
         broadcasts the model's weights to all connected RolloutWorkers
         """
+        self.logger.debug("broadcast weights")
         model.save(self.model_path)
         with open(self.model_path, 'rb') as f:
             weights = f.read()
@@ -195,6 +199,7 @@ class TrainerInterface:
         """
         returns the TrainerInterface's buffer of training samples
         """
+        self.logger.debug("retrieve buffer")
         buffers = self.__endpoint.receive_all()
         res = Buffer()
         for buf in buffers:
@@ -202,6 +207,9 @@ class TrainerInterface:
         self.__endpoint.notify(groups={'trainers': -1})  # retrieve everything
         return res
 
+
+logger_training = logging.getLogger("TrainingLoop")
+setup_logger(logger_training)
 
 def log_environment_variables():
     """
@@ -248,31 +256,31 @@ def iterate_epochs_tm(run_cls,
     checkpoint_path = checkpoint_path or tempfile.mktemp("_remove_on_exit")
 
     try:
-        logging.debug(f"checkpoint_path: {checkpoint_path}")
+        logger_training.debug(f"checkpoint_path: {checkpoint_path}")
         if not exists(checkpoint_path):
-            logging.info(f"=== specification ".ljust(70, "="))
+            logger_training.info(f"=== specification ".ljust(70, "="))
             run_instance = run_cls()
             dump_run_instance_fn(run_instance, checkpoint_path)
             logging.info(f"")
         else:
-            logging.info(f"Loading checkpoint...")
+            logger_training.info(f"Loading checkpoint...")
             t1 = time.time()
             run_instance = load_run_instance_fn(checkpoint_path)
-            logging.info(f" Loaded checkpoint in {time.time() - t1} seconds.")
+            logger_training.info(f" Loaded checkpoint in {time.time() - t1} seconds.")
             if updater_fn is not None:
-                logging.info(f"Updating checkpoint...")
+                logger_training.info(f"Updating checkpoint...")
                 t1 = time.time()
                 run_instance = updater_fn(run_instance, run_cls)
-                logging.info(f"Checkpoint updated in {time.time() - t1} seconds.")
+                logger_training.info(f"Checkpoint updated in {time.time() - t1} seconds.")
 
         while run_instance.epoch < run_instance.epochs:
             # time.sleep(1)  # on network file systems writing files is asynchronous and we need to wait for sync
             yield run_instance.run_epoch(interface=interface)  # yield stats data frame (this makes this function a generator)
             if run_instance.epoch % epochs_between_checkpoints == 0:
-                logging.info(f" saving checkpoint...")
+                logger_training.info(f" saving checkpoint...")
                 t1 = time.time()
                 dump_run_instance_fn(run_instance, checkpoint_path)
-                logging.info(f" saved checkpoint in {time.time() - t1} seconds.")
+                logger_training.info(f" saved checkpoint in {time.time() - t1} seconds.")
                 # we delete and reload the run_instance from disk to ensure the exact same code runs regardless of interruptions
                 # del run_instance
                 # gc.collect()  # garbage collection
@@ -294,7 +302,7 @@ def run_with_wandb(entity, project, run_id, interface, run_cls, checkpoint_path:
     wandb_dir = tempfile.mkdtemp()  # prevent wandb from polluting the home directory
     atexit.register(shutil.rmtree, wandb_dir, ignore_errors=True)  # clean up after wandb atexit handler finishes
     import wandb
-    logging.debug(f" run_cls: {run_cls}")
+    logger_training.debug(f" run_cls: {run_cls}")
     config = partial_to_dict(run_cls)
     config['environ'] = log_environment_variables()
     # config['git'] = git_info()  # TODO: check this for bugs
@@ -307,9 +315,9 @@ def run_with_wandb(entity, project, run_id, interface, run_cls, checkpoint_path:
             wandb_initialized = True
         except Exception as e:
             err_cpt += 1
-            logging.warning(f"wandb error {err_cpt}: {e}")
+            logger_training.warning(f"wandb error {err_cpt}: {e}")
             if err_cpt > 10:
-                logging.warning(f"Could not connect to wandb, aborting.")
+                logger_training.warning(f"Could not connect to wandb, aborting.")
                 exit()
             else:
                 time.sleep(10.0)
@@ -371,6 +379,9 @@ class Trainer:
             that takes a checkpoint and training_cls as argument and returns an updated checkpoint. \
             The updater is called after a checkpoint is loaded, e.g., to update your checkpoint with new arguments.
         """
+        self.logger = logging.getLogger("Trainer")
+        setup_logger(self.logger)
+
         self.checkpoint_path = checkpoint_path
         self.dump_run_instance_fn = dump_run_instance_fn
         self.load_run_instance_fn = load_run_instance_fn
@@ -503,10 +514,10 @@ class RolloutWorker:
         self.actor = actor_module_cls(observation_space=obs_space, action_space=act_space).to_device(self.device)
         self.standalone = standalone
         if os.path.isfile(self.model_path):
-            self.logger.debug(f"Loading model from {self.model_path}")
+            self.logger.info(f"Loading model from {self.model_path}")
             self.actor = self.actor.load(self.model_path, device=self.device)
         else:
-            self.logger.debug(f"No model found at {self.model_path}")
+            self.logger.info(f"No model found at {self.model_path}")
         self.buffer = Buffer()
         self.max_samples_per_episode = max_samples_per_episode
         self.crc_debug = crc_debug
@@ -516,7 +527,6 @@ class RolloutWorker:
         self.server_ip = server_ip if server_ip is not None else '127.0.0.1'
 
         self.logger.info(f"server IP: {self.server_ip}")
-        # print_with_timestamp(f"server IP: {self.server_ip}")
 
         if not self.standalone:
             self.__endpoint = Endpoint(ip_server=self.server_ip,
@@ -547,6 +557,7 @@ class RolloutWorker:
         # if self.obs_preprocessor is not None:
         #     obs = self.obs_preprocessor(obs)
         action = self.actor.act_(obs, test=test)
+        self.logger.debug(f"sample action {action}")
         return action
 
     def reset(self, collect_samples):
@@ -561,7 +572,7 @@ class RolloutWorker:
             (nested structure: observation retrieved from the environment,
             dict: information retrieved from the environment)
         """
-        self.logger.info("reset environment")
+        self.logger.debug("reset environment")
         obs = None
         act = self.env.default_action.astype(np.float32)
         new_obs, info = self.env.reset()
@@ -602,7 +613,6 @@ class RolloutWorker:
             dict: information dictionary)
         """
         act = self.act(obs, test=test)
-        self.logger.debug(f"take action: {act}")
         new_obs, rew, terminated, truncated, info = self.env.step(act)
         if self.obs_preprocessor is not None:
             new_obs = self.obs_preprocessor(new_obs)
@@ -650,6 +660,7 @@ class RolloutWorker:
             nb_episodes (int): total number of episodes to collect
             train (bool): same as run_episode
         """
+        self.logger.info(f"run {nb_episodes} {'train' if train else 'test'} episodes")
         counter = 0
         while counter < nb_episodes:
             self.run_episode(max_samples_per_episode, train=train)
@@ -665,7 +676,6 @@ class RolloutWorker:
             train (bool): whether the episode is a training or a test episode.
                 `step` is called with `test=not train`.
         """
-        self.logger.debug("run episode")
         ret = 0.0
         steps = 0
         obs, info = self.reset(collect_samples=False)
@@ -694,16 +704,12 @@ class RolloutWorker:
         while episode < nb_episodes:
             if episode % test_episode_interval == 0 and not self.crc_debug:
                 self.logger.info("run test episode")
-                # print_with_timestamp("running test episode")
                 self.run_episode(self.max_samples_per_episode, train=False)
             self.logger.info("collecting train episode")
-            # print_with_timestamp("collecting train episode")
             self.collect_train_episode(self.max_samples_per_episode)
             self.logger.info("copying buffer for sending")
-            # print_with_timestamp("copying buffer for sending")
             self.send_and_clear_buffer()
             self.logger.info("checking for new weights")
-            # print_with_timestamp("checking for new weights")
             self.update_actor_weights()
             episode += 1
             # if self.crc_debug:
@@ -727,7 +733,7 @@ class RolloutWorker:
             obs, rew, terminated, truncated, info = self.step(obs=obs, test=test, collect_samples=False)
             if terminated or truncated:
                 break
-        print(f"\n##############################################\n\nBenchmark results:\n{self.env.benchmarks()}")
+        self.logger.info(f"Benchmark results: {self.env.benchmarks()}")
 
     def send_and_clear_buffer(self):
         """

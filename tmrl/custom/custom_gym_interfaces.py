@@ -24,7 +24,6 @@ from tmrl.custom.utils.window import WindowInterface
 from tmrl.custom.utils.tools import Lidar, TM2020OpenPlanetClient, save_ghost
 from tmrl.logger import setup_logger
 
-
 # Globals ==============================================================================================================
 
 NB_OBS_FORWARD = 500  # this allows (and rewards) 50m cuts
@@ -59,6 +58,9 @@ class TM2020InterfaceLinux(RealTimeGymInterface):
             finish_reward: float: reward when passing the finish line
             constant_penalty: float: constant reward given at each time-step
         """
+        self.logger = logging.getLogger("TM20Interface")
+        setup_logger(self.logger)
+
         self.last_time = None
         self.img_hist_len = img_hist_len
         self.img_hist = None
@@ -78,10 +80,6 @@ class TM2020InterfaceLinux(RealTimeGymInterface):
 
         self.initialized = False
 
-        self.logger = logging.getLogger("TM20Interface")
-        setup_logger(self.logger)
-
-
     def initialize_common(self):
         self.window_interface = WindowInterface("Trackmania")
         self.window_interface.move_and_resize()
@@ -95,19 +93,11 @@ class TM2020InterfaceLinux(RealTimeGymInterface):
                                               min_nb_steps_before_failure=self.min_nb_steps_before_failure)
         self.client = TM2020OpenPlanetClient()
 
-    def test_interface(self):
-        self.logger.debug("testing interface")
-        self.window_interface = WindowInterface("Trackmania")
-        self.window_interface.move_and_resize()
-        time.sleep(100)
-
-
     def initialize(self):
-        self.logger.debug("start initializing")
         self.initialize_common()
         self.small_window = True
         self.initialized = True
-        self.logger.info("intialized")
+        self.logger.info("setup completed")
 
     def send_control(self, control):
         """
