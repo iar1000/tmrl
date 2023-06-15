@@ -1,18 +1,18 @@
 #!/usr/bin/env python3
 
-import os
-import sys
 import logging
 
 
-LOG_FORMAT = "%(name)-30s - %(funcName)15s() - %(levelname)-8s - %(message)s"
+LOG_FORMAT = "[%(levelname)-8s] - %(name)-15s - %(funcName)15s() - %(message)s"
+LOG_LEVEL = logging.INFO
 
-def setup_logger(logger, name, level=logging.DEBUG, fmt=None):
+def setup_logger(logger):
         for handler in logger.handlers:
             logger.removeHandler(handler)
         console_handler = logging.StreamHandler()
-        console_handler.setLevel(level)
+        console_handler.setLevel(LOG_LEVEL)
         formatter = logging.Formatter(LOG_FORMAT)
         console_handler.setFormatter(formatter)
         logger.addHandler(console_handler)
-        logger.setLevel(level)
+        logger.setLevel(LOG_LEVEL)
+        print(LOG_LEVEL)

@@ -1,10 +1,9 @@
 import logging
-from tmrl.logger import setup_logger
+from tmrl.logger import setup_logger, LOG_LEVEL
 
 import time
 from argparse import ArgumentParser, ArgumentTypeError
 import json
-import platform
 
 # local imports
 import tmrl.config.config_constants as cfg
@@ -86,8 +85,11 @@ if __name__ == "__main__":
     parser.add_argument('-v', '--verbose', action='store_true', help='verbose logging')             
     arguments = parser.parse_args()
 
+    if arguments.verbose:
+        LOG_LEVEL = logging.DEBUG
+
     logger = logging.getLogger()
-    setup_logger(logger, "root")
+    setup_logger(logger)
     logger.info(arguments)
 
     main(arguments)
