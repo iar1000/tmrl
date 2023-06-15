@@ -99,7 +99,7 @@ elif platform.system() == "Linux":
             self.w = 960
 
             self.logger = logging.getLogger(__name__)
-            setup_logger(self.logger)
+            setup_logger(self.logger, __name__)
             # log_all_windows()
 
         # @todo: make sure it is the correct format

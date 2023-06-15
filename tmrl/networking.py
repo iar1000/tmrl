@@ -490,7 +490,7 @@ class RolloutWorker:
             hostname (str): tlspyo hostname; usually, leave this to the default
         """
         self.logger = logging.getLogger(__name__)
-        setup_logger(self.logger)
+        setup_logger(self.logger, __name__)
 
         self.obs_preprocessor = obs_preprocessor
         self.get_local_buffer_sample = sample_compressor

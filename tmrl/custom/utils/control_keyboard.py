@@ -104,7 +104,7 @@ elif platform.system() == "Linux":
     import logging
     
     logger = logging.getLogger(__name__)
-    setup_logger(logger)
+    setup_logger(logger, __name__)
 
     def PressKey(key):
         process = subprocess.run(['xdotool', 'keydown', str(key)])

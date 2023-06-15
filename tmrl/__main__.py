@@ -139,7 +139,7 @@ if __name__ == "__main__":
     arguments = parser.parse_args()
 
     logger = logging.getLogger()
-    setup_logger(logger)
+    setup_logger(logger, "root")
     logger.info(arguments)
 
     if platform.system() == "Linux":

@@ -79,7 +79,7 @@ class TM2020InterfaceLutris(RealTimeGymInterface):
         self.initialized = False
 
         self.logger = logging.getLogger(__name__)
-        setup_logger(self.logger)
+        setup_logger(self.logger, __name__)
 
 
     def initialize_common(self):
