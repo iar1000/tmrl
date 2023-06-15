@@ -97,8 +97,8 @@ elif platform.system() == "Linux":
             self.window_name = window_name
             self.window_id = get_window_id(window_name)
 
-            self.logger = logging.getLogger(__name__)
-            setup_logger(self.logger, __name__)
+            self.logger = logging.getLogger("WindowInterface")
+            setup_logger(self.logger)
             # log_all_windows()
 
         # @todo: make sure it is the correct format

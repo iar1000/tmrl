@@ -489,8 +489,8 @@ class RolloutWorker:
             keys_dir (str): tlspyo credentials directory; usually, leave this to the default
             hostname (str): tlspyo hostname; usually, leave this to the default
         """
-        self.logger = logging.getLogger(__name__)
-        setup_logger(self.logger, __name__)
+        self.logger = logging.getLogger("RolloutWorker")
+        setup_logger(self.logger)
 
         self.obs_preprocessor = obs_preprocessor
         self.get_local_buffer_sample = sample_compressor

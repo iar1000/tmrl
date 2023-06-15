@@ -32,7 +32,7 @@ NB_OBS_FORWARD = 500  # this allows (and rewards) 50m cuts
 
 # Interface for Trackmania 2020 ========================================================================================
 
-class TM2020InterfaceLutris(RealTimeGymInterface):
+class TM2020InterfaceLinux(RealTimeGymInterface):
     """
     This is the API needed for the algorithm to control TrackMania 2020
     """
@@ -78,8 +78,8 @@ class TM2020InterfaceLutris(RealTimeGymInterface):
 
         self.initialized = False
 
-        self.logger = logging.getLogger(__name__)
-        setup_logger(self.logger, __name__)
+        self.logger = logging.getLogger("TM20Interface")
+        setup_logger(self.logger)
 
 
     def initialize_common(self):
