@@ -109,8 +109,11 @@ elif platform.system() == "Linux":
                                         capture_output=True, check=True)
                 image = Image.open(io.BytesIO(result.stdout))
                 # image.show()
-                as_arr = np.asarray(image)
-                return as_arr
+                img = np.asarray(image)
+                img.shape = (cfg.WINDOW_HEIGHT, cfg.WINDOW_WIDTH, 3)
+
+                # self.logger.debug(img.size)
+                return img
             except subprocess.CalledProcessError as e:
                 self.logger.error(f"failed to capture screenshot of window_id '{self.window_id}'")
 

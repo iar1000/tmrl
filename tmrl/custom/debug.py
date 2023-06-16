@@ -29,3 +29,15 @@ idd = get_window_id("Trackmania")
 
 process = subprocess.run(['xdotool', 'windowfocus', '--sync', str(idd)])
 PressKey("BackSpace")
+
+bm1 = """
+
+Benchmark results: {
+    'time_step_duration': (0.22514559314409327, 0.008692089945998844), 
+    'step_duration': (0.2751401724524714, 0.07006031395717925), 
+    'join_duration': (0.21352377943647918, 0.009823450445597409), 
+    'inference_duration': (0.010572301306467649, 0.00817803021794876),
+     'send_control_duration': (0.08928152505781214, 0.007451150760484988), 
+     'retrieve_obs_duration': (0.09540154837552751, 0.008232732436606514)}
+
+"""
